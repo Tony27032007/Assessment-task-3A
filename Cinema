@@ -1,0 +1,20 @@
+import customtkinter as ctk
+ctk.set_appearance_mode("system")
+if ctk.get_appearance_mode() == "Light":
+    ctk.set_default_color_theme("dark-blue")
+else:
+    ctk.set_default_color_theme("blue")
+root = ctk.CTk()
+root.geometry("800x600")
+root.title("CineMax")
+root.iconbitmap("film_roll.ico")
+root.grid_columnconfigure(0, weight=1)
+
+
+def clicked():
+    l=ctk.CTkLabel(root, text="clicked")
+    l.grid(row=1, column=0, padx=20, pady=20)
+
+button = ctk.CTkButton(root, text="Click Me", command=clicked)
+button.grid(row=0, column=0, padx=20, pady=20)
+root.mainloop()
