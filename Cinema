@@ -1,13 +1,15 @@
 import customtkinter as ctk
 ctk.set_appearance_mode("system")
+
+root = ctk.CTk()
 if ctk.get_appearance_mode() == "Light":
     ctk.set_default_color_theme("dark-blue")
+    root.iconbitmap("film_roll.ico")
 else:
     ctk.set_default_color_theme("blue")
-root = ctk.CTk()
+    root.iconbitmap("Untitled.ico")
 root.geometry("800x600")
 root.title("CineMax")
-root.iconbitmap("film_roll.ico")
 root.grid_columnconfigure(0, weight=1)
 
 
