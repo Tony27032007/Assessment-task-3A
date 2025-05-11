@@ -1,6 +1,9 @@
 import customtkinter as ctk
 from root import root
 from PIL import Image
+import urllib.request
+import io
+import base64
 class home(ctk.CTkFrame):
       
       def home_page():
@@ -15,7 +18,7 @@ class home(ctk.CTkFrame):
             tabview.set("home")            
             thelogo = ctk.CTkImage(light_image=Image.open("film roll.png"), dark_image=Image.open("Untitled.png"),size=(120, 120))
             logohome = ctk.CTkLabel(root, text="", image=thelogo)            
-            logohome.place(relx=0.08, rely=0.06, anchor="center")
+            logohome.place(relx=0.075, rely=0.06, anchor="center")
             def update_buttons(tab_name):
                   tabview.set(tab_name)
                   home_button.configure(fg_color="#08376B", text_color="#FFFFFF")
@@ -45,17 +48,27 @@ class home(ctk.CTkFrame):
             home_frame.place(anchor="s", relx=0.5, rely=1, relwidth=1, relheight=0.98)
             class NowShowing(ctk.CTkScrollableFrame):
                 def filmframe(self,parent,text1):
-                    self.label = ctk.CTkLabel(parent, text=text1, text_color="#08376B", font=("Arial Rounded MT Bold",22), justify="left")
-                    self.label.pack(side="top", expand=False, pady=1)
+                    self.label = ctk.CTkLabel(parent, text=text1, text_color="#08376B", font=("Arial Rounded MT Bold",27), justify="left")
+                    self.label.pack(side="top", expand=True, pady=30, anchor="w")
                     self._frame = ctk.CTkScrollableFrame(parent, fg_color="transparent", bg_color="transparent", width=1920, height=350, orientation="horizontal")
                     self._frame._scrollbar.grid_remove()
                     self._frame.pack(side="top", fill="x", expand=False)
-                
-                    
-                    
-                    for i in range(10):
-                        self.button = ctk.CTkButton(self._frame, text="Film " + str(i+1), fg_color="#08376B", text_color="#FFFFFF", corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22), hover=True)
-                        self.button.pack(side="left", padx=10, pady=10)
+
+                    class WebImage:
+                        def __init__(self, url):
+                            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15'})
+                            with urllib.request.urlopen(url) as u:
+                                raw_data = u.read()
+                            #self.image = tk.PhotoImage(data=base64.encodebytes(raw_data))
+                            image = Image.open(io.BytesIO(raw_data))
+                            self.image = ctk.CTkImage(image, size=(200, 300))
+
+                        def get(self):
+                            return self.image
+                    # for i in range(50):
+                    thelogo = WebImage("https://drive.google.com/file/d/1p1_vhTTbPIVU9q8-Ypu9K-cpnmt-7Ka9/view?usp=sharing").get()
+                    logohome = ctk.CTkLabel(self._frame, text="", image=thelogo)            
+                    logohome.pack(side="left", expand=True, padx=20, anchor="w")
 
 
             NowShowing.filmframe(NowShowing, home_frame, "Now Showing")
