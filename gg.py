@@ -1,13 +1,5 @@
-import pyrebase
-firebaseConfig = {
-  "apiKey": "AIzaSyDOFgG6I2VIBc3LeJfUt7AyOd2SHaPHRO4",
-  "authDomain": "cinema-5819f.firebaseapp.com",
-  "databaseURL": "https://cinema-5819f-default-rtdb.asia-southeast1.firebasedatabase.app",
-  "projectId": "cinema-5819f",
-  "storageBucket": "cinema-5819f.firebasestorage.app",
-  "messagingSenderId": "728966562197",
-  "appId": "1:728966562197:web:6664d4578fbe689c20b69c",
-  "measurementId": "G-F04WRTG05R"
-};
-firebase = pyrebase.initialize_app(firebaseConfig)
-auth = firebase.auth()
+from supabase import create_client, Client
+
+url = "https://przfumkjastcgmejfvrt.supabase.co"
+key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByemZ1bWtqYXN0Y2dtZWpmdnJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNjU5MzgsImV4cCI6MjA2MjY0MTkzOH0.OsYJ-_TWHZ7lUSWGD7lFkzGf18tqqapSkbrTqq8d7rk"
+supabase: Client = create_client(url, key)

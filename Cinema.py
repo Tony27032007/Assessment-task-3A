@@ -2,6 +2,7 @@ from root import root
 import customtkinter as ctk
 from PIL import Image
 import csv
+from gg import *
 root=root
 right_frame = ctk.CTkFrame(root, height=1080, width=640, fg_color="#08376B", bg_color="#08376B")
 right_frame.pack(side="right", expand=False, fill="y")
