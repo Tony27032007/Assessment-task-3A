@@ -47,22 +47,55 @@ def login():
     global button1, button2
     button1.destroy()
     button2.destroy()
-    create_text()
+    global button3
+    y=0.45
     button3 = ctk.CTkButton(right_frame, text="Login", bg_color="transparent" ,command=loginin, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22))
-    button3.place(rely=0.65, relx=0.5, anchor="center")
+    button3.place(rely=y, relx=0.5, anchor="center")
+    
+    while y<0.65:
+        y=y+0.0065
+        button3.place_configure(rely=y)
+        root.update_idletasks()
+        root.after(1)
+    create_text()
 def signup():
     def signingup():
-        destroyB()
-        l.destroy()
-        p.destroy()
-    create_text()
-    global button1, button2
+        with open('customer_data.csv', mode ='r')as file:
+            csvFile = csv.reader(file)
+            for lines in csvFile:
+                if lines[0] == l.get():
+                    existed = ctk.CTkLabel(right_frame, text="Username already exists", text_color="red", font=("Arial Rounded MT Bold",22))
+                    existed.place(relx=0.5, rely=0.85, anchor="center")
+                    create_text()
+                    global button3
+                    try:
+                        button3.destroy()
+                    except Exception:
+                        pass
+                    button3 = ctk.CTkButton(right_frame, text="Sign Up", bg_color="transparent", command=signingup, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22))
+                    button3.place(rely=0.65, relx=0.5, anchor="center")
+                    return
+        with open('customer_data.csv', mode ='a')as file:
+            csvFile = csv.writer(file)
+            csvFile.writerow([l.get(), p.get()])
+        clear_window(root)
+        from homes import homes
+        homes.home_page()
+    
+    global button1, button2, button3
     button1.destroy()
     button2.destroy()
+    global button3
     button3 = ctk.CTkButton(right_frame, text="Sign Up", bg_color="transparent" ,command=signingup, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22))
-    button3.place(rely=0.65, relx=0.5, anchor="center")
-
-    
+    button3.place(rely=0.55, relx=0.5, anchor="center")
+    global y
+    y=0.55
+    while y<0.65:
+        y=y+0.0065
+        button3.place_configure(rely=y)
+        root.update_idletasks()
+        root.after(1)
+    create_text()
 def render_auth(a,b):
     global button1, button2
     button1 = ctk.CTkButton(right_frame, fg_color="#3987f5", text="Login", bg_color="transparent" ,command=login, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22))
