@@ -21,7 +21,7 @@ def destroyB():
 
 def create_text():
     global l, p
-    l=ctk.CTkEntry(right_frame, placeholder_text="Username", width=260, height=50, corner_radius=25, font=("Arial",22))
+    l=ctk.CTkEntry(right_frame, placeholder_text="Email", width=260, height=50, corner_radius=25, font=("Arial",22))
     l.place(relx=0.5, rely=0.45, anchor="center")
     p=ctk.CTkEntry(right_frame, placeholder_text="Password", width=260, height=50, corner_radius=25, font=("Arial",22))
     p.place(relx=0.5, rely=0.55, anchor="center")
@@ -33,23 +33,56 @@ def clear_window(window):
     
 def login():
     def loginin():
-        with open('customer_data.csv', mode ='r')as file:
-            csvFile = csv.reader(file)
-            for lines in csvFile:
-                if lines[0] == l.get() and lines[1] == p.get():
-                    clear_window(root)
-                    from homes import homes
-                    homes.home_page()
-                    break
-                else:
-                    wrong = ctk.CTkLabel(right_frame, text="Wrong Username or Password", text_color="red", font=("Arial Rounded MT Bold",22))
-                    wrong.place(relx=0.5, rely=0.85, anchor="center")
+        try:
+            login = supabase.auth.sign_in_with_password({"email":l.get(), "password":p.get()})
+            clear_window(root)
+            from homes import homes
+            homes.home_page()
+        except Exception as e:
+            wrong = ctk.CTkLabel(right_frame, text="Wrong Username or Password", text_color="red", font=("Arial Rounded MT Bold",22))
+            wrong.place(relx=0.5, rely=0.85, anchor="center")
+                
     
     global button1, button2
     button1.destroy()
     button2.destroy()
-    global button3
+    global button3 , l, p
+    global x
+    x=0.75
+    def forgotpass():
+        clear_window(right_frame)
+        # Entry for email
+        email_entry = ctk.CTkEntry(
+            right_frame, placeholder_text="Enter Email", width=260, height=50, corner_radius=25, font=("Arial",22)
+        )
+        email_entry.place(relx=0.5, rely=0.45, anchor="center")
+
+        def send_reset():
+            try:
+                supabase.auth.reset_password_for_email(email_entry.get())
+                msg = ctk.CTkLabel(
+                    right_frame, text="Password reset email sent!", text_color="green", font=("Arial Rounded MT Bold",18)
+                )
+                msg.place(relx=0.5, rely=0.65, anchor="center")
+                root.after(5000,msg.destroy())
+                clear_window(right_frame)
+                render_auth(45, 55)
+            except Exception as e:
+                msg = ctk.CTkLabel(
+                    right_frame, text="Failed to send reset email.", text_color="red", font=("Arial Rounded MT Bold",18)
+                )
+                msg.place(relx=0.5, rely=0.65, anchor="center")
+                root.after(5000, msg.destroy())
+                clear_window(right_frame)
+                render_auth(45, 55)
+
+        reset_btn = ctk.CTkButton(
+            right_frame, text="Send Reset Email", command=send_reset, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22)
+        )
+        reset_btn.place(relx=0.5, rely=0.55, anchor="center")
+
     y=0.45
+    
     button3 = ctk.CTkButton(right_frame, text="Login", bg_color="transparent" ,command=loginin, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22))
     button3.place(rely=y, relx=0.5, anchor="center")
     
@@ -59,26 +92,11 @@ def login():
         root.update_idletasks()
         root.after(1)
     create_text()
+    rsp = ctk.CTkButton(right_frame, text="Forgot Password?", bg_color="transparent" ,command=forgotpass, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22))
+    rsp.place(rely=x, relx=0.5, anchor="center")
 def signup():
     def signingup():
-        with open('customer_data.csv', mode ='r')as file:
-            csvFile = csv.reader(file)
-            for lines in csvFile:
-                if lines[0] == l.get():
-                    existed = ctk.CTkLabel(right_frame, text="Username already exists", text_color="red", font=("Arial Rounded MT Bold",22))
-                    existed.place(relx=0.5, rely=0.85, anchor="center")
-                    create_text()
-                    global button3
-                    try:
-                        button3.destroy()
-                    except Exception:
-                        pass
-                    button3 = ctk.CTkButton(right_frame, text="Sign Up", bg_color="transparent", command=signingup, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22))
-                    button3.place(rely=0.65, relx=0.5, anchor="center")
-                    return
-        with open('customer_data.csv', mode ='a')as file:
-            csvFile = csv.writer(file)
-            csvFile.writerow([l.get(), p.get()])
+        register = supabase.auth.sign_up({"email":l.get(), "password":p.get()})
         clear_window(root)
         from homes import homes
         homes.home_page()
