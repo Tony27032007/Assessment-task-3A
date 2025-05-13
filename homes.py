@@ -5,10 +5,7 @@ import urllib.request
 import io
 import base64
 class home(ctk.CTkFrame):
-      
     def home_page():
-
-
         tabview = ctk.CTkTabview(root, height=1080, width=1920, fg_color="transparent", bg_color="transparent", corner_radius=25)
         tabview.place(anchor="n", relx=0.5, rely=0.01)
         tabview._segmented_button.grid_remove()
@@ -83,10 +80,6 @@ class home(ctk.CTkFrame):
         buy_frame.place(anchor="s", relx=0.5, rely=1, relwidth=1, relheight=0.98)
         myaccount_frame = ctk.CTkScrollableFrame(myaccount, fg_color="transparent", bg_color="transparent", width=1920, height=1000)
         myaccount_frame._scrollbar.grid_remove()
-        myaccount_frame.place(anchor="s", relx=0.5, rely=1, relwidth=1, relheight=0.98)
-            
-
-            
-            
+        myaccount_frame.place(anchor="s", relx=0.5, rely=1, relwidth=1, relheight=0.98)     
 home.home_page()
 root.mainloop()

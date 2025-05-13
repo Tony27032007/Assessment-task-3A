@@ -61,25 +61,25 @@ def login():
             try:
                 supabase.auth.reset_password_for_email(email_entry.get())
                 msg = ctk.CTkLabel(
-                    right_frame, text="Password reset email sent!", text_color="green", font=("Arial Rounded MT Bold",18)
+                    right_frame, text="Check your email for the reset link.", text_color="green", font=("Arial Rounded MT Bold",18)
                 )
                 msg.place(relx=0.5, rely=0.65, anchor="center")
-                root.after(5000,msg.destroy())
-                clear_window(right_frame)
-                render_auth(45, 55)
             except Exception as e:
                 msg = ctk.CTkLabel(
                     right_frame, text="Failed to send reset email.", text_color="red", font=("Arial Rounded MT Bold",18)
                 )
                 msg.place(relx=0.5, rely=0.65, anchor="center")
-                root.after(5000, msg.destroy())
-                clear_window(right_frame)
-                render_auth(45, 55)
 
         reset_btn = ctk.CTkButton(
             right_frame, text="Send Reset Email", command=send_reset, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22)
         )
         reset_btn.place(relx=0.5, rely=0.55, anchor="center")
+
+        # Optional: Add a return button
+        return_btn = ctk.CTkButton(
+            right_frame, text="Return", command=lambda: render_auth(0.45, 0.55), corner_radius=25, width=120, height=40, font=("Arial Rounded MT Bold",18)
+        )
+        return_btn.place(relx=0.5, rely=0.75, anchor="center")
 
     y=0.45
     
