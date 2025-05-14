@@ -23,7 +23,7 @@ def create_text():
     global l, p
     l=ctk.CTkEntry(right_frame, placeholder_text="Email", width=260, height=50, corner_radius=25, font=("Arial",22))
     l.place(relx=0.5, rely=0.45, anchor="center")
-    p=ctk.CTkEntry(right_frame, placeholder_text="Password", width=260, height=50, corner_radius=25, font=("Arial",22))
+    p=ctk.CTkEntry(right_frame, placeholder_text="Password", show="·" ,width=260, height=50, corner_radius=25, font=("Arial",22))
     p.place(relx=0.5, rely=0.55, anchor="center")
 
 
@@ -34,10 +34,21 @@ def clear_window(window):
 def login():
     def loginin():
         try:
-            login = supabase.auth.sign_in_with_password({"email":l.get(), "password":p.get()})
-            clear_window(root)
-            from homes import homes
-            homes.home_page()
+            url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
+            payload = {
+                "email": l.get(),
+                "password": p.get(),
+                "returnSecureToken": True
+            }
+            response = requests.post(url, json=payload)
+            data = response.json()
+            if "idToken" in data:
+                usremail = l.get()
+                clear_window(root)
+                from homes import home_page
+                home_page(usremail)
+            else:
+                raise Exception(data.get("error", {}).get("message", "Unknown error"))
         except Exception as e:
             wrong = ctk.CTkLabel(right_frame, text="Wrong Username or Password", text_color="red", font=("Arial Rounded MT Bold",22))
             wrong.place(relx=0.5, rely=0.85, anchor="center")
@@ -51,7 +62,6 @@ def login():
     x=0.75
     def forgotpass():
         clear_window(right_frame)
-        # Entry for email
         email_entry = ctk.CTkEntry(
             right_frame, placeholder_text="Enter Email", width=260, height=50, corner_radius=25, font=("Arial",22)
         )
@@ -59,11 +69,23 @@ def login():
 
         def send_reset():
             try:
-                supabase.auth.reset_password_for_email(email_entry.get())
-                msg = ctk.CTkLabel(
-                    right_frame, text="Check your email for the reset link.", text_color="green", font=("Arial Rounded MT Bold",18)
-                )
-                msg.place(relx=0.5, rely=0.65, anchor="center")
+                url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={FIREBASE_API_KEY}"
+                payload = {
+                    "requestType": "PASSWORD_RESET",
+                    "email": email_entry.get()
+                }
+                response = requests.post(url, json=payload)
+                data = response.json()
+                if "email" in data:
+                    msg = ctk.CTkLabel(
+                        right_frame, text="Check your email for the reset link.", text_color="green", font=("Arial Rounded MT Bold", 18)
+                    )
+                    msg.place(relx=0.5, rely=0.65, anchor="center")
+                    right_frame.after(3000)
+                    clear_window(right_frame)
+                    render_auth(45,55)
+                else:
+                    raise Exception(data.get("error", {}).get("message", "Unknown error"))
             except Exception as e:
                 msg = ctk.CTkLabel(
                     right_frame, text="Failed to send reset email.", text_color="red", font=("Arial Rounded MT Bold",18)
@@ -74,12 +96,6 @@ def login():
             right_frame, text="Send Reset Email", command=send_reset, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22)
         )
         reset_btn.place(relx=0.5, rely=0.55, anchor="center")
-
-        # Optional: Add a return button
-        return_btn = ctk.CTkButton(
-            right_frame, text="Return", command=lambda: render_auth(0.45, 0.55), corner_radius=25, width=120, height=40, font=("Arial Rounded MT Bold",18)
-        )
-        return_btn.place(relx=0.5, rely=0.75, anchor="center")
 
     y=0.45
     
@@ -96,10 +112,45 @@ def login():
     rsp.place(rely=x, relx=0.5, anchor="center")
 def signup():
     def signingup():
-        register = supabase.auth.sign_up({"email":l.get(), "password":p.get()})
-        clear_window(root)
-        from homes import homes
-        homes.home_page()
+        try:
+            url = f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_API_KEY}"
+            payload = {
+                "email": l.get(),
+                "password": p.get(),
+                "returnSecureToken": True
+            }
+            response = requests.post(url, json=payload)
+            data = response.json()
+            if "idToken" in data:
+                usremail = l.get()
+                
+                user = auth.get_user_by_email(usremail)
+                uid = user.uid
+
+                
+                db.collection("customer").document(uid).set({
+                    "email": usremail,
+                    "firstname": "Provide First Name",
+                    "lastname": "Provide Last Name",
+                    "phone": "Provide Phone Number",
+                    "ticID": None
+                })
+
+                clear_window(root)
+                from homes import home_page
+                home_page(usremail)
+            else:
+                raise Exception(data.get("error", {}).get("message", "Unknown error"))
+        except Exception as e:
+            wrong = ctk.CTkLabel(
+                right_frame,
+                text="Sign Up failed.",
+                text_color="red",
+                font=("Arial Rounded MT Bold", 18)
+            )
+            wrong.place(relx=0.5, rely=0.85, anchor="center")
+
+
     
     global button1, button2, button3
     button1.destroy()
@@ -118,11 +169,11 @@ def signup():
 def render_auth(a,b):
     global button1, button2
     button1 = ctk.CTkButton(right_frame, fg_color="#3987f5", text="Login", bg_color="transparent" ,command=login, corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22))
-    button1.place(rely=0.45, relx=0.5, anchor="center")
+    button1.place(rely=float(a)/100, relx=0.5, anchor="center")
     button2 = ctk.CTkButton(right_frame, text="Sign Up", bg_color="transparent" ,command=signup, corner_radius=25,width=260,border_color="#3987f5", border_width=4, fg_color="transparent", height=50, font=("Arial Rounded MT",22))
-    button2.place(rely=0.55, relx=0.5, anchor="center")
+    button2.place(rely=float(b)/100, relx=0.5, anchor="center")
 
-#make 2 buttons login and sign up on top of each other
+
 
 render_auth(45,55)
 root.mainloop()
