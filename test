@@ -1,0 +1,5 @@
+
+movieid = db.collection("Movie").stream()
+print(movieid)
+for movie in movieid:
+    print(f"{movie.to_dict().get("name")}")

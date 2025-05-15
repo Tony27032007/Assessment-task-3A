@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from root import root
-from PIL import Image
+from PIL import Image, ImageTk
 from gg import *
 import qrcode
 from datetime import *
@@ -39,12 +39,14 @@ def home_page(usremail):
     buy_button.place(relx=0.5, rely=0.5, anchor="center")
     myaccount_button = ctk.CTkButton(upper_frame, fg_color="#08376B", text="My Account", text_color="#FFFFFF", corner_radius=25, width=260, height=50, font=("Arial Rounded MT Bold",22), hover=True, command= lambda: update_buttons("myaccount"))
     myaccount_button.place(relx=0.8, rely=0.5, anchor="center")
-    global home_frame, buy_frame, myaccount_frame
+    global home_frame, tic_frame, myaccount_frame
 
     home_frame = ctk.CTkScrollableFrame(home, fg_color="transparent", bg_color="transparent", width=1920, height=1000)
     home_frame._scrollbar.grid_remove()
     home_frame.place(anchor="s", relx=0.5, rely=1, relwidth=1, relheight=0.98)
     class NowShowing(ctk.CTkScrollableFrame):
+        def __init__(self, parent):
+            super().__init__(parent)
         def filmframe(self,parent,text1,n):
             self.label = ctk.CTkLabel(parent, text=text1, text_color="#08376B", font=("Arial Rounded MT Bold",27), justify="left")
             self.label.pack(side="top", expand=True, pady=30, anchor="w")
@@ -66,16 +68,49 @@ def home_page(usremail):
                 # Bind hover events
                 logohome.bind("<Enter>", on_enter)
                 logohome.bind("<Leave>", on_leave)
+        def film_details(self, i):
+            movie_doc =  db.collection("Movie").where("posfile", "==", "Film_" + str(i) + ".jpg").get()
+            if movie_doc:
+                movie_doc = movie_doc[0] 
+                movie_data = movie_doc.to_dict()
+                def get_movie_description(movie_name):
+                    api_key = "a9e02f57"  
+                    url = f"http://www.omdbapi.com/?t={movie_name}&apikey={api_key}"
+                    response = requests.get(url)
+                    data = response.json()
+                    if data.get("Response") == "True":
+                        name = f"Title: {data.get('Title')}"
+                        description = f"Description: {data.get('Plot')}"
+                        release_date = f"Year: {data.get('Year')}"
+                    else:
+                        name = "Movie not found."
+                        description = "Null"
+                        release_date = "Null"
 
-    NowShowing.filmframe(NowShowing, home_frame, "Now Showing", 1)
-    NowShowing.filmframe(NowShowing, home_frame, "Coming Soon", 11)
-    NowShowing.filmframe(NowShowing, home_frame, "Top Rated", 21)
-    NowShowing.filmframe(NowShowing, home_frame, "Most Popular", 31)
+                    # Create a new window for movie details
+                    details_window = ctk.CTkToplevel(root)
+                    details_window.title(name)
+                    details_window.geometry("600x400")
+                    details_window.configure(resizeable=False, fg_color=("#FFFFFF", "#000000"), bg_color=("#FFFFFF", "#000000"))
+                    
+                    # Display the details
+                    details_label = ctk.CTkLabel(details_window, text=f"Name: {name}\nDescription: {description}\nRelease Date: {release_date}", text_color="#08376B", font=("SF Pro Rounded", 22), justify="left", wraplength=550)
+                    details_label.pack(pady=20, fill="both")
+                    buytic_btn = ctk.CTkButton(details_window, text="Buy Ticket→", command=lambda: buy_ticket(movie_data), fg_color="#1F6AA5", text_color="#FFFFFF", font=("Arial Rounded MT Bold", 20))
+                    buytic_btn.pack(pady=10, padx=20, anchor="e")
+                get_movie_description(movie_data.get("name"))
+
+    # Create an instance of NowShowing and call filmframe
+    now_showing = NowShowing(home_frame)
+    now_showing.filmframe(home_frame, "Now Showing", 1)
+    now_showing.filmframe(home_frame, "Coming Soon", 11)
+    now_showing.filmframe(home_frame, "Top Rated", 21)
+    now_showing.filmframe(home_frame, "Most Popular", 31)
         
     ursid = auth.get_user_by_email(usremail)
         
-    buy_frame = ctk.CTkFrame(buy, fg_color="transparent", bg_color="transparent", width=1920, height=1000)
-    buy_frame.place(anchor="s", relx=0.5, rely=1, relwidth=1, relheight=0.98)
+    tic_frame = ctk.CTkFrame(buy, fg_color="transparent", bg_color="transparent", width=1920, height=1000)
+    tic_frame.place(anchor="s", relx=0.5, rely=1, relwidth=1, relheight=0.98)
 
     
     user_doc = db.collection("customer").document(ursid.uid).get()
@@ -106,7 +141,7 @@ def home_page(usremail):
             seatnumber = ticket.get("seatnum", "Unknown")
 
             ticket_info = f"Movie: {movie}\nScreen: {screen}\nDate-Time: {date_time}\nSeat: {seatnumber}"
-            ticket_label = ctk.CTkLabel(buy_frame, text=ticket_info, text_color="#08376B", font=("Arial Rounded MT Bold", 22), justify="left")
+            ticket_label = ctk.CTkLabel(tic_frame, text=ticket_info, text_color="#08376B", font=("Arial Rounded MT Bold", 22), justify="left")
             ticket_label.place(relx=0.4, rely=0.3, anchor="center")
 
             # Generate QR code for ticID
@@ -115,17 +150,17 @@ def home_page(usremail):
             qr.make(fit=True)
             qr_img = qr.make_image(fill_color="#08376B", back_color="white")
             qr_img = qr_img.resize((180, 180))
-            from PIL import ImageTk
+            
             qr_img_tk = ImageTk.PhotoImage(qr_img)
 
-            qr_label = ctk.CTkLabel(buy_frame, text="", image=qr_img_tk)
+            qr_label = ctk.CTkLabel(tic_frame, text="", image=qr_img_tk)
             qr_label.image = qr_img_tk  # Keep a reference!
             qr_label.place(relx=0.7, rely=0.3, anchor="center")
         else:
-            ticket_label = ctk.CTkLabel(buy_frame, text="No ticket info found.", text_color="red", font=("Arial Rounded MT Bold", 20))
+            ticket_label = ctk.CTkLabel(tic_frame, text="No ticket info found.", text_color="red", font=("Arial Rounded MT Bold", 20))
             ticket_label.place(relx=0.5, rely=0.3, anchor="center")
     else:
-        ticket_label = ctk.CTkLabel(buy_frame, text="No ticket purchased.", text_color="#909090", font=("Arial Rounded MT Bold", 20))
+        ticket_label = ctk.CTkLabel(tic_frame, text="No ticket purchased.", text_color="#909090", font=("Arial Rounded MT Bold", 20))
         ticket_label.place(relx=0.5, rely=0.3, anchor="center")
 
     myaccount_frame = ctk.CTkFrame(myaccount, fg_color="transparent", bg_color="transparent", width=1920, height=1000)
@@ -190,5 +225,5 @@ def home_page(usremail):
 
     save_btn = ctk.CTkButton(myaccount_frame, text="Save", command=save_details, corner_radius=25, width=200, state="disabled", height=50, fg_color="#909090", font=("Arial",20))
     save_btn.place(relx=0.6, rely=0.5, anchor="center")
-home_page("tony2732007@gmail.com")
+home_page("tonymasteri2703@gmail.com")
 root.mainloop()
