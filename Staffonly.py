@@ -17,10 +17,13 @@ appqr.resizable(True, True)
 
 def create_text():
     global l, p
-    l=ctk.CTkEntry(appqr, placeholder_text="Email", width=260, height=50, corner_radius=25, font=("Arial",22))
-    l.place(relx=0.5, rely=0.4, anchor="center")
-    p=ctk.CTkEntry(appqr, placeholder_text="Password", show="·" ,width=260, height=50, corner_radius=25, font=("Arial",22))
-    p.place(relx=0.5, rely=0.6, anchor="center")
+    l="tony2732007@gmail.com"
+    p=27032007
+#     l=ctk.CTkEntry(appqr, placeholder_text="Email", width=260, height=50, corner_radius=25, font=("Arial",22))
+#     l.place(relx=0.5, rely=0.4, anchor="center")
+#     p=ctk.CTkEntry(appqr, placeholder_text="Password", show="·" ,width=260, height=50, corner_radius=25, font=("Arial",22))
+#     p.place(relx=0.5, rely=0.6, anchor="center")
+
 
 
 def clear_window(window):
@@ -32,8 +35,8 @@ def loginin():
     try:
         url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
         payload = {
-            "email": l.get(),
-            "password": p.get(),
+            "email": l,
+            "password": p,
             "returnSecureToken": True
         }
         response = requests.post(url, json=payload)
@@ -58,7 +61,7 @@ def loginin():
             scanning = True
             
             def verify_ticket(ticket_id):
-                """Check if ticket ID exists in database"""
+            
                 try:
                     # Check if the ticket ID exists in the database
                     ticket_doc = db.collection("tic").get()
