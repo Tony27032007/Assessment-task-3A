@@ -17,7 +17,7 @@ x = 5
 movies = db.collection("Movie").where("posfile", "==", "Film_" + str(x) + ".jpg").get()
 
 if movies:
-    movie_doc = movies[0]  # Get the first matching document
+    movie_doc = movies[0] 
     movie_data = movie_doc.to_dict()
     movie_name = movie_data.get("name")
     get_movie_description(movie_name)
